@@ -21,12 +21,7 @@ package org.apache.tajo.ws.rs;
 import org.apache.tajo.QueryId;
 import org.apache.tajo.master.TajoMaster.MasterContext;
 import org.apache.tajo.master.exec.NonForwardQueryResultScanner;
-import org.apache.tajo.ws.rs.resources.ClusterResource;
-import org.apache.tajo.ws.rs.resources.DatabasesResource;
-import org.apache.tajo.ws.rs.resources.FunctionsResource;
-import org.apache.tajo.ws.rs.resources.QueryResource;
-import org.apache.tajo.ws.rs.resources.SessionsResource;
-import org.apache.tajo.ws.rs.resources.TablesResource;
+import org.apache.tajo.ws.rs.resources.*;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -74,6 +69,7 @@ public class ClientApplication extends Application {
     classes.add(FunctionsResource.class);
     classes.add(ClusterResource.class);
     classes.add(QueryResource.class);
+    classes.add(ExcuteQueryResource.class);
     
     return classes;
   }
