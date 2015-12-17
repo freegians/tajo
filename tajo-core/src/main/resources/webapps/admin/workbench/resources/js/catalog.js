@@ -118,20 +118,24 @@ function createDatabase(databaseName) {
  */
 function selectDatabase() {
     var result;
+    //$.ajax({
+    //    url: ctx + '/cluster/' + _connectDatabaseName + '/selectDatabase',
+    //    dataType:'json',
+    //    type:'post',
+    //    async: false,
+    //    success:function(res){
+    //        result = res;
+    //    }
+    //});
     $.ajax({
-        url: ctx + '/cluster/' + _connectDatabaseName + '/selectDatabase',
+        url: ctx,
         dataType:'json',
         type:'post',
         async: false,
-        success:function(res){
-            result = res;
-        }
-    });
-    $.ajax({
-        url: ctx + '/query/' + _connectDatabaseName + '/selectDatabase',
-        dataType:'json',
-        type:'post',
-        async: false,
+        data: {
+            action: 'selectDatabase',
+            databaseName: _connectDatabaseName
+        },
         success:function(res){
             result = res;
         }
@@ -193,10 +197,14 @@ function showTableList() {
 function getTableList() {
     var result;
     $.ajax({
-        url: ctx + '/table/' + _connectDatabaseName + '/getTableList',
+        url: ctx,
         dataType:'json',
         type:'get',
         async: false,
+        data: {
+            action: 'getTableList',
+            databaseName: _connectDatabaseName
+        },
         success:function(res){
             result = res.data;
         }

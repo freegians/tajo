@@ -131,9 +131,18 @@ public class WorkbenchRestServlet extends HttpServlet {
         tajoClient2 = new TajoClient(host, Integer.parseInt(port));
         sampleReadTajoClient2 = new TajoClient(host, Integer.parseInt(port));
         returnValue.put("data", true);
+
       } else if("getDatabaseNames".equals(action)) {
         returnValue.put("data", master.getCatalog().getAllDatabaseNames());
+
+      } else if("selectDatabase".equals(action)) {
+        tajoClient2.selectDB(databaseName);
+        sampleReadTajoClient2.selectDB(databaseName);
+        returnValue.put("data", true);
+      } else if("getTableList".equals(action)) {
+        returnValue.put("data", master.getCatalog().getAllTableNames(databaseName));
       }
+
       returnValue.put("success", "true");
       writeHttpResponse(response, returnValue);
     } catch (Exception e) {
