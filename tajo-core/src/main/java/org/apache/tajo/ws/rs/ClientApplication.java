@@ -69,7 +69,6 @@ public class ClientApplication extends Application {
     classes.add(FunctionsResource.class);
     classes.add(ClusterResource.class);
     classes.add(QueryResource.class);
-    classes.add(ExcuteQueryResource.class);
     
     return classes;
   }

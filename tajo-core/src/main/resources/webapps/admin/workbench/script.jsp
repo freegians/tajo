@@ -7,13 +7,13 @@
 
 <!-- Latest compiled and minified CSS -->
 <link rel="stylesheet" href="resources/lib/css/jquery-ui.min.css" />
-<link rel="stylesheet" href="resources/lib/css/bootstrap.min.css" />
+<link rel="stylesheet" href="resources/lib/bootstrap/dist/css/bootstrap.min.css" />
 <link rel="stylesheet" href="resources/lib/css/bootstrap-sortable.css" />
 
 <!-- Optional theme -->
-<link rel="stylesheet" href="resources/lib/css/bootstrap-theme.min.css" />
+<link rel="stylesheet" href="resources/lib/bootstrap/dist/css/bootstrap-theme.min.css" />
 
-<link rel="stylesheet" href="resources/lib/css/font-awesome.min.css" />
+<link rel="stylesheet" href="resources/lib/font-awesome/css/font-awesome.min.css" />
 <!--<link rel="stylesheet" href="../../static/bower_components/nvd3/build/nv.d3.min.css" rel="stylesheet" />-->
 <link rel="stylesheet" href="resources/lib/css/nv.d3.min.css" />
 
@@ -22,7 +22,7 @@
 <!-- Latest compiled and minified JavaScript -->
 <script src="resources/lib/js/jquery.min.js"></script>
 <script src="resources/lib/js/jquery-ui.min.js"></script>
-<script src="resources/lib/js/bootstrap.min.js"></script>
+<script src="resources/lib/bootstrap/dist/js/bootstrap.min.js"></script>
 <script src="resources/lib/js/bootstrap-sortable.js"></script>
 <script src="resources/lib/js/jquery.bootstrap-growl.min.js"></script>
 <script src="resources/lib/js/moment.min.js"></script>
