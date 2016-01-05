@@ -61,11 +61,12 @@ $('#btn-explain-query').click(function() {
 function explainQuery(query) {
     var result;
     $.ajax({
-        url: ctx + '/query/explain',
+        url: ctx,
         dataType:'json',
         type:'get',
         async: false,
         data: {
+            action: 'explainQuery',
             query: query
 
         },
@@ -124,11 +125,12 @@ function runQuery(query, newTask, __uid) {
 function excuteQuery(query, newTask, __uid) {
     var result;
     $.ajax({
-        url: ctx + '/query/query',
+        url: ctx,
         dataType:'json',
         type:'post',
         async: false,
         data: {
+            action: 'runQuery',
             query: query
 
         },
@@ -193,10 +195,15 @@ function getQueryStatus(uid) {
     var result;
     var stv = setInterval(function() {
         $.ajax({
-            url: ctx + '/query/status/' + _uidToQueryId[uid],
+            url: ctx,
             dataType:'json',
             type:'get',
             async: false,
+            data: {
+                action: 'queryStatus',
+                queryId: _uidToQueryId[uid]
+
+            },
             success:function(res){
                 progressbar(uid, Math.round(res.data.progress * 100), res.data.state);
                 if(res.data.state == "COMPLETED") {
@@ -265,11 +272,12 @@ function getQueryResult() {
 function getQueryResultId(uid) {
     var result;
     $.ajax({
-        url: ctx + '/query/queryId',
+        url: ctx,
         dataType:'json',
         type:'get',
         async: false,
         data: {
+            action: 'getQueryResult',
             queryId: _uidToQueryId[uid],
             limit: _dataLimit
         },

@@ -1,12 +1,19 @@
 package org.apache.tajo.webapp;
 
+import com.google.protobuf.ServiceException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.hadoop.util.StringUtils;
 import org.apache.tajo.client.v2.QueryFuture;
 import org.apache.tajo.client.v2.TajoClient;
 import org.apache.tajo.conf.TajoConf;
+import org.apache.tajo.exception.TajoException;
+import org.apache.tajo.jdbc.TajoMemoryResultSet;
 import org.apache.tajo.master.TajoMaster;
+import org.apache.tajo.webapp.workbench.ColumnMetadata;
+import org.apache.tajo.webapp.workbench.QueryStatus;
+import org.apache.tajo.webapp.workbench.ResultDataSet;
+import org.apache.tajo.webapp.workbench.ResultMetadata;
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -20,8 +27,13 @@ import java.io.IOException;
 import java.io.NotSerializableException;
 import java.io.OutputStream;
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -112,8 +124,10 @@ public class WorkbenchRestServlet extends HttpServlet {
     String host = request.getParameter("host");
     String port = request.getParameter("port");
     String queryId = request.getParameter("queryId");
+    String query = request.getParameter("query");
     String databaseName = request.getParameter("databaseName");
     String tableName = request.getParameter("tableName");
+    String limit = request.getParameter("limit");
 
     Map<String, Object> returnValue = new HashMap<>();
     try {
@@ -141,9 +155,119 @@ public class WorkbenchRestServlet extends HttpServlet {
         returnValue.put("data", true);
       } else if("getTableList".equals(action)) {
         returnValue.put("data", master.getCatalog().getAllTableNames(databaseName));
+      } else if("getSampleData".equals(action)) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("select * from ")
+                .append(databaseName)
+                .append(".")
+                .append(tableName)
+                .append(" limit ")
+                .append(limit);
+        try (QueryFuture future = sampleReadTajoClient2.executeQueryAsync(sb.toString())) {
+
+          LOG.info("progress: " + future.progress());
+          while (!future.isDone()) { // isDone will be true if query state becomes success, failed, or killed.
+            LOG.info("progress: " + future.progress());
+          }
+
+          if (future.isSuccessful()) {
+
+            ResultSet rs = future.get();
+            ResultDataSet rds = getQueryResult(rs, Integer.parseInt(limit));
+            rs.close();
+//            return rds;
+            returnValue.put("data", rds);
+          }
+        }
+
+      } else if("checkConnection".equals(action)) {
+        TajoClient tajoClient = tajoClient2;
+        if(tajoClient == null) {
+          returnValue.put("data", false);
+        }
+        returnValue.put("data", true);
+      } else if("runQuery".equals(action)) {
+        QueryStatus queryStatus = new QueryStatus();
+        try {
+          //futureCleanup();
+
+          runQueryFuture = tajoClient2.executeQueryAsync(query);
+          tempQueryFuture.put(runQueryFuture.id(), runQueryFuture);
+          queryStatus.setId(runQueryFuture.id());
+          returnValue.put("data", queryStatus);
+
+        } catch (Exception e) {
+          returnValue.put("data", e.getMessage());
+        }
+      } else if("queryStatus".equals(action)) {
+        QueryStatus queryStatus = new QueryStatus();
+        try {
+          QueryFuture queryFuture = tempQueryFuture.get(queryId);
+          queryStatus.setId(queryFuture.id());
+          queryStatus.setState(queryFuture.state());
+          queryStatus.setProgress(queryFuture.progress());
+          queryStatus.setStartTime(queryFuture.startTime());
+          queryStatus.setFinishTime(queryFuture.finishTime());
+          if (queryFuture.isSuccessful()) {
+            rs = queryFuture.get();
+            tempResultSet.put(queryFuture.id(), rs);
+          }
+          returnValue.put("data", queryStatus);
+        } catch (Exception e) {
+          returnValue.put("data", e.getMessage());
+        }
+
+      } else if("getQueryResult".equals(action)) {
+        ResultDataSet rds = getQueryResult(tempResultSet.get(queryId), Integer.parseInt(limit));
+        returnValue.put("data", rds);
+      } else if("explainQuery".equals(action)) {
+        String trimedQuery = org.apache.commons.lang.StringUtils.trim(query);
+        if(!org.apache.commons.lang.StringUtils.startsWithIgnoreCase(trimedQuery, "explain")) {
+          trimedQuery = "explain " + trimedQuery;
+        }
+
+        ResultSet explanRs = null;
+        StringBuilder sb = new StringBuilder();
+
+        try (QueryFuture future = sampleReadTajoClient2.executeQueryAsync(trimedQuery)) {
+
+          LOG.info("progress: " + future.progress());
+          while (!future.isDone()) { // isDone will be true if query state becomes success, failed, or killed.
+            LOG.info("progress: " + future.progress());
+          }
+
+          if (future.isSuccessful()) {
+            explanRs = future.get();
+
+          }
+
+          while(explanRs.next()) {
+            sb.append(explanRs.getString(1)).append("\n");
+          }
+          explanRs.close();
+
+        } catch (TajoException e) {
+          // executeQueryAsync() directly throws a TajoException instance if a query syntax is wrong.
+          returnValue.put("data", e.getMessage());
+        } catch (ExecutionException e) {
+          returnValue.put("data", e.getMessage());
+        } catch (Throwable t) {
+          returnValue.put("data", t.getMessage());
+        }
+        returnValue.put("data", sb.toString());
+      } else if("killQuery".equals(action)) {
+        try {
+          QueryFuture queryFuture = tempQueryFuture.get(queryId);
+          if (!queryFuture.isDone()) {
+            queryFuture.kill();
+          }
+          returnValue.put("data", "success");
+        } catch (Exception e) {
+          returnValue.put("data", e.getMessage());
+        }
       }
 
-      returnValue.put("success", "true");
+      returnValue.put("success", true);
       writeHttpResponse(response, returnValue);
     } catch (Exception e) {
       LOG.error(e.getMessage(), e);
@@ -157,7 +281,7 @@ public class WorkbenchRestServlet extends HttpServlet {
 
   private void errorResponse(HttpServletResponse response, String message) throws IOException {
     Map<String, Object> errorMessage = new HashMap<>();
-    errorMessage.put("success", "false");
+    errorMessage.put("success", false);
     errorMessage.put("errorMessage", message);
     writeHttpResponse(response, errorMessage);
   }
@@ -170,6 +294,67 @@ public class WorkbenchRestServlet extends HttpServlet {
 
     out.flush();
     out.close();
+  }
+
+
+
+  private ResultDataSet getQueryResult(ResultSet rs, int limit) throws ServiceException, IOException, SQLException {
+    if (rs == null) {
+      return null;
+    }
+    ResultMetadata resultMetadata = getResultSetMetadata(rs);
+    String[][] rows = getDataFromResultSet(rs, limit);
+
+    ResultDataSet rds = new ResultDataSet()
+            .withMetadata(resultMetadata)
+            .withData(rows);
+
+    return rds;
+  }
+  private ResultMetadata getResultSetMetadata(ResultSet resultSet) throws SQLException {
+    List<ColumnMetadata> columnMetadatas = new ArrayList<ColumnMetadata>();
+    if(resultSet instanceof TajoMemoryResultSet) {
+    }
+    ResultSetMetaData rsmd = resultSet.getMetaData();
+    int columnCount = rsmd.getColumnCount();
+    for (int i = 1; i <= columnCount; i++) {
+      columnMetadatas.add(new ColumnMetadata()
+              .withColumnName(rsmd.getColumnName(i))
+              .withColumnType(rsmd.getColumnTypeName(i)));
+    }
+    ResultMetadata resultMetadata = new ResultMetadata()
+            .withColumnMetadata(columnMetadatas);
+    return resultMetadata;
+  }
+  private String[][] getDataFromResultSet(ResultSet resultSet, int limit) throws SQLException {
+    List<String[]> rows = new ArrayList<String[]>();
+    int columnCount = resultSet.getMetaData().getColumnCount();
+    int limitCount = 0;
+    int currentRow = 0;
+    if(limit == -1) {		// set row position for download excel
+      currentRow = resultSet.getRow();
+      resultSet.beforeFirst();
+
+    }
+    while(resultSet.next()) {
+      String[] columnData = new String[columnCount];
+      for (int i = 1; i <= columnCount; i++) {
+        columnData[i-1] = String.valueOf(resultSet.getObject(i));
+      }
+      rows.add(columnData);
+      if(limit != -1) {
+        if(++limitCount == limit) {
+          break;
+        }
+      }
+    }
+    if(limit == -1) {		// reset row position after download excel
+      resultSet.beforeFirst();
+      for(int i = 0; i < currentRow; i++) {
+        resultSet.next();
+      }
+    }
+    return rows.toArray(new String[rows.size()][]);
   }
 
 }

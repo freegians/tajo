@@ -330,10 +330,13 @@ function connectCluster() {
 function checkConnection() {
     var result;
     $.ajax({
-        url: ctx + '/query/checkConnection',
+        url: ctx,
         dataType:'json',
         type:'get',
         async: false,
+        data: {
+            action: 'checkConnection'
+        },
         success:function(res){
             if(res.success == true) {
                 if(res.data) {

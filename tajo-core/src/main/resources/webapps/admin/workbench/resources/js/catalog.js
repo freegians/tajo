@@ -262,10 +262,16 @@ function getSampleData() {
 
     var result;
     $.ajax({
-        url: ctx + '/query/' + _connectDatabaseName + '/' + tableName + '/100/getSampleData',
+        url: ctx,
         dataType:'json',
         type:'get',
         async: false,
+        data: {
+            action: 'getSampleData',
+            databaseName: _connectDatabaseName,
+            tableName: tableName,
+            limit: 100
+        },
         success:function(res){
             result = res.data;
         }

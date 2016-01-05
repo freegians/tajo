@@ -209,6 +209,114 @@
     </div>
 </div>
 
+<div class="modal fade bs-example-modal-lg" id="tajoInfoModal" tabindex="-1" role="dialog" aria-labelledby="tajoInfoModalLabel">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="tajoInfoModalLabel">Cluster List</h4>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-xs-8 col-md-8">
+                        <div class="cluster-list">
+                            <table class="table table-hover">
+                                <thead>
+                                <tr>
+                                    <th>Cluster Name</th>
+                                    <th>Host</th>
+                                    <th>Port</th>
+                                    <!--<th>연결된 workbook</th>-->
+                                    <th>Del</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="col-xs-4 col-md-4">
+                        <h5>Enter connection details below</h5>
+                        <form id="form-cluster">
+                            <input type="hidden" id="add-form-cluster-id" />
+                            <div class="form-group">
+                                <label for="add-form-cluster-name">Cluster Name</label>
+                                <input type="text" class="form-control" id="add-form-cluster-name" placeholder="Cluster Name" />
+                            </div>
+                            <div class="form-group">
+                                <label for="add-form-cluster-host">Cluster Host</label>
+                                <input type="url" class="form-control" id="add-form-cluster-host" placeholder="Cluster Host" />
+                            </div>
+                            <div class="form-group">
+                                <label for="add-form-cluster-port">Cluster Port</label>
+                                <input type="number" class="form-control" id="add-form-cluster-port" placeholder="Cluster port" />
+                            </div>
+                            <button type="button" class="btn btn-default" id="btn-submit-add-cluster">Add</button>
+                            <button type="button" class="btn btn-default" id="btn-submit-save-cluster">Save</button>
+                            <button type="button" class="btn btn-default" id="btn-submit-test-connection-cluster">Test connection</button>
+                        </form>
+                    </div>
+                </div>
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default pull-left" id="btn-toggle-add-cluster-form">
+                    <span class="glyphicon glyphicon-plus" aria-hidden="true"></span>
+                </button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="btn-tajoInfoModal-connect">Connect</button>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<div class="modal fade" id="modal-create-database" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Create database</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="input-create-database-name">Database Name</label>
+                        <input type="text" class="form-control" id="input-create-database-name" placeholder="Database name" />
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="btn-submit-create-database">Create</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+
+<!--Explain Query-->
+<div class="modal fade" id="modal-explain-query" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title">Explain query</h4>
+            </div>
+            <div class="modal-body" id="modal-explain-query-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+</div><!-- /.modal -->
+
+<canvas id="canvas" style="display: none;"></canvas>
+
 <script type="text/javascript">
     "use strict";
     <%--document.domain = '<%=rpcAddress[0]%>';--%>
