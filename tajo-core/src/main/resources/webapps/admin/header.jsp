@@ -26,6 +26,7 @@
     <li><a class='top_menu_item' href='query.jsp'>Query</a></li>
     <li><a class='top_menu_item' href='catalogview.jsp'>Catalog</a></li>
     <li><a class='top_menu_item' href='query_executor.jsp'>Execute Query</a></li>
+    <li><a class='top_menu_item' href='./workbench' target="_blank">Workbench</a></li>
   </ul>
   <br style='clear:left'/>
 </div>
