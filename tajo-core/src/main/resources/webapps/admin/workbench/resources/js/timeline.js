@@ -90,10 +90,14 @@ function killQuery() {
 }
 function killQueryById(queryId) {
     $.ajax({
-        url: ctx + '/query/kill/' + queryId,
+        url: ctx,
         dataType:'json',
         type:'post',
         async: true,
+        data: {
+            action: 'killQuery',
+            queryId: queryId
+        },
         success:function(res){
         }
     });
