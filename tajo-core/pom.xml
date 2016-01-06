@@ -68,6 +68,7 @@
             <exclude>benchmark/**</exclude>
             <exclude>src/main/resources/META-INF/services/*</exclude>
             <exclude>src/main/resources/webapps/static/js/*</exclude>
+            <exclude>src/main/resources/webapps/admin/workbench/**</exclude>
           </excludes>
         </configuration>
       </plugin>
