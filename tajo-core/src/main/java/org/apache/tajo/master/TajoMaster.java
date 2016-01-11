@@ -34,8 +34,6 @@ import org.apache.hadoop.yarn.event.EventHandler;
 import org.apache.hadoop.yarn.util.Clock;
 import org.apache.hadoop.yarn.util.RackResolver;
 import org.apache.hadoop.yarn.util.SystemClock;
-import org.apache.tajo.TajoConstants;
-import org.apache.tajo.algebra.AlterTablespace;
 import org.apache.tajo.catalog.CatalogServer;
 import org.apache.tajo.catalog.CatalogService;
 import org.apache.tajo.catalog.FunctionDesc;
@@ -69,6 +67,7 @@ import org.apache.tajo.util.history.HistoryWriter;
 import org.apache.tajo.util.metrics.TajoSystemMetrics;
 import org.apache.tajo.webapp.QueryExecutorServlet;
 import org.apache.tajo.webapp.StaticHttpServer;
+import org.apache.tajo.webapp.WorkbenchRestServlet;
 import org.apache.tajo.ws.rs.TajoRestService;
 
 import java.io.IOException;
@@ -79,7 +78,6 @@ import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
 import java.net.InetSocketAddress;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Map;
 
 import static org.apache.tajo.TajoConstants.DEFAULT_DATABASE_NAME;
@@ -248,6 +246,7 @@ public class TajoMaster extends CompositeService {
       webServer = StaticHttpServer.getInstance(this ,"admin", address.getHostName(), address.getPort(),
           true, null, context.getConf(), null);
       webServer.addServlet("queryServlet", "/query_exec", QueryExecutorServlet.class);
+      webServer.addServlet("workbenchRestServlet", "/workbench_rest", WorkbenchRestServlet.class);
       webServer.start();
     }
   }
